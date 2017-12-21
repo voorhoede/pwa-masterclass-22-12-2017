@@ -7,9 +7,16 @@ const CORE_ASSETS = [
 
 // Precache static assets
 self.addEventListener('install', event => {
-    //
-    // Assignment 2
-    //
+    event.waitUntil(CORE_ASSETS.forEach(url => {
+            const request = new Request(url);
+            fetch(request).then(response => {
+                return caches.open(CORE_CACHE_NAME).then(cache => {
+                    console.info('Precaching:', url);
+                    return cache.put(url, response);
+                })
+            })
+        })
+    );
 });
 
 // Delete outdated core caches
@@ -34,14 +41,16 @@ self.addEventListener('fetch', event => {
     const request = event.request;
     if (isCoreGetRequest(request)) {
         console.info('Core get request: ', request.url);
-        //
-        // Assignment 2
-        //
+        event.respondWith(caches.open(CORE_CACHE_NAME)
+            .then(cache => cache.match(request.url)))
     } else if (isHtmlGetRequest(request)) {
         console.info('HTML get request', request.url);
-        //
-        // Assignment 2
-        //
+        event.respondWith(
+            tryCacheThenNetwork(request, 'html-cache').catch((error) => {
+                console.info('HTML fetch failed. Return offline fallback', error);
+                return caches.open(CORE_CACHE_NAME).then(cache => cache.match('/offline/'))
+            })
+        )
     } else if (isApiGetRequest(request)) {
         console.info('Api get request: ', request.url);
         event.respondWith(tryCacheThenNetwork(request, 'api-cache'));

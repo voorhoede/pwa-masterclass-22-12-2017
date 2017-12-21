@@ -80,9 +80,27 @@ self.addEventListener('push', event => {
 
     console.info(`received push message from ${title}: "${body}"`);
 
-    //
-    // Assignment 3
-    //
+    event.waitUntil(
+        self.clients.matchAll().then(clients => {
+            const nonActiveClient = clients.find(client => {
+                return client.visibilityState === 'hidden' || (client.visibilityState === 'visible' && !client.focused)
+            });
+
+            const shouldShowNotification = !!(!clients.length || nonActiveClient);
+
+            if (shouldShowNotification) {
+                // Show notification
+                self.registration.showNotification(title, {
+                    body,
+                    icon: '/assets/images/icon-72x72.png',
+                    // tag: 'message',
+                    vibrate: [300, 100, 400],
+                })
+            } else {
+                console.info('Don\'t show notification: Chat app is already open!');
+            }
+        })
+    );
 });
 
 self.addEventListener('message', event => {
@@ -132,9 +150,12 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 self.addEventListener('sync', event => {
-    //
-    // Assignment 3
-    //
+    if (event.tag === 'syncChats') {
+        event.waitUntil(
+            sendChats()
+                .then(messages => postMessage({ messages }))
+        )
+    }
 });
 
 // HELPERS

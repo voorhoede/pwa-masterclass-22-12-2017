@@ -52,9 +52,9 @@ function onFormSubmit(e) {
 
         return storeChat(message)
             .then(() => {
-                //
-                // Assignment 3
-                //
+                return navigator.serviceWorker.ready.then(registration => {
+                    return registration.sync.register('syncChats')
+                })
             }).catch(() => {
                 console.error('no background sync :(');
                 fetch('/messages/send?ajax=true', {
@@ -80,9 +80,10 @@ function onFormSubmit(e) {
 }
 
 function getRegistrationEndpoint() {
-    //
-    // Assignment 3
-    //
+    return navigator.serviceWorker.getRegistration()
+        .then(registration => registration.pushManager.getSubscription()
+            .then(subscription => subscription ? subscription.endpoint : null)
+        )
 }
 
 function onError(messageId) {

@@ -25,10 +25,14 @@
     (function(window) {
         'use strict';
 
-        //
-        // Assignment 1
-        // Register service worker here
-        //
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function(registration) {
+                        return registration.update();
+                    })
+            });
+        }
     }(window));
 </script>
 

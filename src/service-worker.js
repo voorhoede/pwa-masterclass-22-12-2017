@@ -335,3 +335,10 @@ function createResponseObject(response, body) {
 
     return Promise.resolve(new Response([JSON.stringify(body, null, 2)], {type : 'application/json'}, init))
 }
+
+/**
+ * This is boilerplate, instructing the service worker to take control as soon
+ * as it can.
+ */
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => self.clients.claim());

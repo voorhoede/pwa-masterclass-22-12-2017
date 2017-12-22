@@ -121,3 +121,10 @@ function getPathName(requestUrl) {
     const url = new URL(requestUrl);
     return url.pathname;
 }
+
+/**
+ * This is boilerplate, instructing the service worker to take control as soon
+ * as it can.
+ */
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => self.clients.claim());
